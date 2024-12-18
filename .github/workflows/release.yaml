@@ -1,0 +1,44 @@
+name: Create Firefox Addon ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test
+
+permissions:
+  contents: write
+
+jobs:
+  create-addon-zip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_OUTPUT
+
+      - name: Create ZIP archive
+        env:
+          ADDON_DIR: ./background.js/
+        run: |
+          make package
+
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: firefox-org-mode.zip
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: Release v${{ steps.version.outputs.VERSION }}
+          draft: false
+          prerelease: false
