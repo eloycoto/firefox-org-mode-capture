@@ -17,6 +17,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Set up jq
         run: |
           sudo apt-get update
@@ -31,6 +36,17 @@ jobs:
           ADDON_DIR: ./background.js/
         run: |
           make package
+
+      - name: Sign Firefox extension
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.API_SECRET }}
+        run: |
+          npm install --global web-ext
+          web-ext sign \
+            --api-key=$WEB_EXT_API_KEY \
+            --api-secret=$WEB_EXT_API_SECRET \
+            --channel=listed
 
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v2
