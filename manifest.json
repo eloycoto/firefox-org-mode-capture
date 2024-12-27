@@ -3,6 +3,11 @@
   "name": "ORGMode-plugin",
   "version": "1.1",
   "description": "Captures current tab information and selected text",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "my-extension@example.com"
+    }
+  },
   "permissions": [
     "activeTab",
     "contextMenus",
